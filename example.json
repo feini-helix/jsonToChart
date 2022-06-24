@@ -1,0 +1,350 @@
+{
+  "metadata": {
+    "pipelineVersion": "5.1.0",
+    "rulesetVersion": "2.3.0",
+    "root": "abortedCheck",
+    "rulesetType": "Analysis",
+    "createdAt": "2022-05-30T10:12:00Z",
+    "schema": "1.3.4"
+  },
+  "rules": [
+    {
+      "id": "abortedCheck",
+      "category": "CompletionStatus",
+      "pass": "reanalyze",
+      "fail": "complete_set_metrics_check",
+      "details": {
+        "operator": "==",
+        "threshold": "Aborted"
+      }
+    },
+    {
+      "id": "complete_set_metrics_check",
+      "category": "QcMetric",
+      "pass": "r2vMetricFail",
+      "fail": "hold",
+      "details": {
+        "operator": "==",
+        "threshold": "1",
+        "type": "int",
+        "metric": "complete_set_metrics"
+      }
+    },
+    {
+      "id": "r2vMetricFail",
+      "category": "MetricRequirement",
+      "pass": "number_great_ape_calls_check",
+      "fail": "cnvRequirement",
+      "details": {
+        "metric": "R2vMetricFailure",
+        "value": true
+      }
+    },
+    {
+      "id": "cnvRequirement",
+      "category": "MetricRequirement",
+      "pass": "goodnessOfFit",
+      "fail": "pgxRequirement",
+      "details": {
+        "metric": "CnvRequired",
+        "value": true
+      }
+    },
+    {
+      "id": "goodnessOfFit",
+      "category": "QcMetric",
+      "pass": "pgxRequirement",
+      "fail": "three_sequencing_events_min_requeue_assessment",
+      "details": {
+        "operator": "==",
+        "threshold": "true",
+        "type": "boolean",
+        "metric": "gof_status"
+      }
+    },
+    {
+      "id": "pgxRequirement",
+      "category": "MetricRequirement",
+      "pass": "pgx_status",
+      "fail": "passAction",
+      "details": {
+        "metric": "PGxRequired",
+        "value": true
+      }
+    },
+    {
+      "id": "pgx_status",
+      "category": "QcMetric",
+      "pass": "passAction",
+      "fail": "three_sequencing_events_min_requeue_assessment",
+      "details": {
+        "operator": "==",
+        "threshold": "PASS",
+        "type": "string",
+        "metric": "pgx_qc"
+      }
+    },
+    {
+      "id": "three_sequencing_events_min_requeue_assessment",
+      "category": "SequencingEventsNum",
+      "pass": "unreportable",
+      "fail": "priorLIMSLibraryRequeue_cascade",
+      "details": {
+        "operator": ">",
+        "threshold": 2
+      }
+    },
+    {
+      "id": "priorLIMSLibraryRequeue_cascade",
+      "category": "RequeueEvents",
+      "pass": "priorBiosampleRequeue_cascade",
+      "fail": "requeueToLibrary",
+      "details": {
+        "operator": ">=",
+        "threshold": 1,
+        "requeueType": "FailRequeueToExistingLibrary",
+        "limsRequeue": true
+      }
+    },
+    {
+      "id": "priorBiosampleRequeue_cascade",
+      "category": "RequeueEvents",
+      "pass": "unreportable",
+      "fail": "requeueToBiosample",
+      "details": {
+        "operator": ">=",
+        "threshold": 1,
+        "requeueType": "FailRequeueToNewLibrary",
+        "limsRequeue": false
+      }
+    },
+    {
+      "id": "number_great_ape_calls_check",
+      "category": "QcMetric",
+      "pass": "bacteriaHumanRatio",
+      "fail": "hold",
+      "details": {
+        "operator": "<",
+        "threshold": "12",
+        "type": "int",
+        "metric": "number_great_ape_calls"
+      }
+    },    
+    {
+      "id": "bacteriaHumanRatio",
+      "category": "QcMetric",
+      "pass": "freemixSample",
+      "fail": "unreportable",
+      "details": {
+        "operator": "<=",
+        "threshold": "0.35",
+        "type": "float",
+        "metric": "bacteria_human_ratio"
+      }
+    },
+    {
+      "id": "freemixSample",
+      "category": "QcMetric",
+      "pass": "mendeliomecore_callability_autosomes_chrx_first_review",
+      "fail": "priorBiosampleRequeue_cascade",
+      "details": {
+        "operator": "<",
+        "threshold": "0.025",
+        "type": "float",
+        "metric": "freemix_sample"
+      }
+    },
+    {
+      "id": "mendeliomecore_callability_autosomes_chrx_first_review",
+      "category": "QcMetric",
+      "pass": "snps_callability_autosomes_chrx_first_review",
+      "fail": "three_sequencing_events_min",
+      "details": {
+        "operator": ">=",
+        "threshold": "0.9650",
+        "type": "float",
+        "metric": "mendeliomecore_callability_autosomes_chrx"
+      }
+    },
+    {
+      "id": "snps_callability_autosomes_chrx_first_review",
+      "category": "QcMetric",
+      "pass": "coding_callability_autosomes_chrx_first_review",
+      "fail": "three_sequencing_events_min",
+      "details": {
+        "operator": ">=",
+        "threshold": "0.750",
+        "type": "float",
+        "metric": "snps_callability_autosomes_chrx"
+      }
+    },
+    {
+      "id": "coding_callability_autosomes_chrx_first_review",
+      "category": "QcMetric",
+      "pass": "variant_overlap_total_length_first_review",
+      "fail": "three_sequencing_events_min",
+      "details": {
+        "operator": ">=",
+        "threshold": "0.860",
+        "type": "float",
+        "metric": "coding_callability_autosomes_chrx"
+      }
+    },
+    {
+      "id": "three_sequencing_events_min",
+      "category": "SequencingEventsNum",
+      "pass": "unreportable",
+      "fail": "threeLIMSLibraryRequeuesMin",
+      "details": {
+        "operator": ">",
+        "threshold": 2
+      }
+    },
+    {
+      "id": "threeLIMSLibraryRequeuesMin",
+      "category": "RequeueEvents",
+      "pass": "priorBiosampleRequeue_cascade",
+      "fail": "requeueToLibrary",
+      "details": {
+        "operator": ">",
+        "threshold": 2,
+        "requeueType": "FailRequeueToExistingLibrary",
+        "limsRequeue": true
+      }
+    },
+    {
+      "id": "variant_overlap_total_length_first_review",
+      "category": "QcMetric",
+      "pass": "variant_gap_max_length_first_review",
+      "fail": "hold",
+      "details": {
+        "operator": "==",
+        "threshold": "0",
+        "type": "float",
+        "metric": "variant_overlap_total_length"
+      }
+    },
+    {
+      "id": "variant_gap_max_length_first_review",
+      "category": "QcMetric",
+      "pass": "imputation_status_check",
+      "fail": "hold",
+      "details": {
+        "operator": "==",
+        "threshold": "0",
+        "type": "int",
+        "metric": "variant_gap_max_length"
+      }
+    },
+    {
+      "id": "imputation_status_check",
+      "category": "QcMetric",
+      "pass": "cnvRequirement_after_gap_max_length",
+      "fail": "hold",
+      "details": {
+        "operator": ">=",
+        "threshold": "1",
+        "type": "int",
+        "metric": "imputation_status"
+      }
+    },
+    {
+      "id": "cnvRequirement_after_gap_max_length",
+      "category": "MetricRequirement",
+      "pass": "goodnessOfFit_after_gap_max_length",
+      "fail": "pgxRequirement_after_gap_max_length",
+      "details": {
+        "metric": "CnvRequired",
+        "value": true
+      }
+    },
+    {
+      "id": "goodnessOfFit_after_gap_max_length",
+      "category": "QcMetric",
+      "pass": "pgxRequirement_after_gap_max_length",
+      "fail": "three_sequencing_events_min_requeue_assessment",
+      "details": {
+        "operator": "==",
+        "threshold": "true",
+        "type": "boolean",
+        "metric": "gof_status"
+      }
+    },
+    {
+      "id": "pgxRequirement_after_gap_max_length",
+      "category": "MetricRequirement",
+      "pass": "pgx_status_after_gap_max_length",
+      "fail": "sexMatch",
+      "details": {
+        "metric": "PGxRequired",
+        "value": true
+      }
+    },
+    {
+      "id": "pgx_status_after_gap_max_length",
+      "category": "QcMetric",
+      "pass": "sexMatch",
+      "fail": "three_sequencing_events_min_requeue_assessment",
+      "details": {
+        "operator": "==",
+        "threshold": "PASS",
+        "type": "string",
+        "metric": "pgx_qc"
+      }
+    },
+    {
+      "id": "sexMatch",
+      "category": "QcMetric",
+      "pass": "passAction",
+      "fail": "hold",
+      "details": {
+        "operator": "==",
+        "threshold": "1",
+        "type": "int",
+        "metric": "sex_match"
+      }
+    },
+    {
+      "id": "passAction",
+      "category": "Action",
+      "details": {
+        "action": "Pass"
+      }
+    },
+    {
+      "id": "requeueToBiosample",
+      "category": "Action",
+      "details": {
+        "action": "FailRequeueToNewLibrary"
+      }
+    },
+    {
+      "id": "requeueToLibrary",
+      "category": "Action",
+      "details": {
+        "action": "FailRequeueToExistingLibrary"
+      }
+    },
+    {
+      "id": "unreportable",
+      "category": "Action",
+      "details": {
+        "action": "FailUnreportable"
+      }
+    },
+    {
+      "id": "reanalyze",
+      "category": "Action",
+      "details": {
+        "action": "FailReanalyze"
+      }
+    },
+    {
+      "id": "hold",
+      "category": "Action",
+      "details": {
+        "action": "Hold"
+      }
+    }
+  ]
+}
