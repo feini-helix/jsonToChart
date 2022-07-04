@@ -42,7 +42,10 @@ def create_flowchart(items):
         elif item["type"] == "action":
             id = item["id"]
             action = item["action"]
-            line = f"{id}=>operation: {action}"
+            if action == "Pass":
+                line = f"{id}=>operation: {action} | pass"
+            else:
+                line = f"{id}=>operation: {action} | action"
             lines.append(line)
     lines.append("")
     first_item_id = items[0]["id"]
@@ -80,15 +83,65 @@ def gen_flowchart_txt(jsonPath):
     content = create_flowchart(items)
     return content
 
+def gen_html(fc_text):
+    html_template = '''
+<script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+<script src="https://flowchart.js.org/flowchart-latest.js"></script>
+<div id="diagram"></div>
+<script>
+  var chartDef = `REPLACE_ME`;
+  var diagram = flowchart.parse(chartDef);
+  diagram.drawSVG('diagram');
+  // you can also try to pass options:
+
+  diagram.drawSVG('diagram', {
+                              'x': 0,
+                              'y': 0,
+                              'line-width': 3,
+                              'line-length': 50,
+                              'text-margin': 10,
+                              'font-size': 14,
+                              'font-color': 'black',
+                              'line-color': 'black',
+                              'element-color': 'black',
+                              'fill': 'white',
+                              'yes-text': 'yes',
+                              'no-text': 'no',
+                              'arrow-end': 'block',
+                              'scale': 1,
+                              // style symbol types
+                              'symbols': {
+                                'start': {
+                                  'font-color': 'red',
+                                  'element-color': 'green',
+                                  'fill': 'yellow'
+                                },
+                                'end':{
+                                  'class': 'end-element'
+                                }
+                              },
+                              // even flowstate support ;-)
+                              'flowstate' : {
+                                'action' : { 'fill' : '#58C4A3', 'font-size' : 12, 'font-color' : 'red', 'font-weight': 'bold'},
+                                'pass' : { 'fill' : 'green', 'font-size' : 12, 'font-weight': 'bold'},
+                                'future' : { 'fill' : '#FFFF99'},
+                              }
+                            });
+</script>   
+'''
+    html_txt = html_template.replace("REPLACE_ME", fc_text)
+    return html_txt
+    
 def usage(filename):
-    print(f"Usage: python3 {filename} <input_json_file_path> > <output_flowchart_file_path>")
+    print(f"Usage: python3 {filename} <input_json_file_path> > <output_html_path>")
     
 def main(argv):
     if len(argv) == 1 or len(argv) == 2 and argv[1] == "-h":
         usage(argv[0])
     else:
         json_path = argv[1]
-        ret = gen_flowchart_txt(json_path)
+        fc_text = gen_flowchart_txt(json_path)
+        ret = gen_html(fc_text)
         print(ret)
 
 if __name__ == "__main__":
